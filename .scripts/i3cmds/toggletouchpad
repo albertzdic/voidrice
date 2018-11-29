@@ -1,9 +1,16 @@
 #!/bin/bash
+
+TOUCH_NAME=$(xinput list --name-only | grep -i touchpad)
+enabled=$(xinput --list-props "$TOUCH_NAME" | grep -cE 'Device Enabled.*1$')
 # Toggle touchpad. Requires xf86-input-synaptics.
 if synclient &>/dev/null; then
-(synclient | grep TouchpadOff.*1 && synclient TouchpadOff=0)>/dev/null && echo "TouchPad reactivated." && exit
-synclient TouchpadOff=1 && echo "TouchPad deactivated."
+  (synclient | grep TouchpadOff.*1 && synclient TouchpadOff=0)>/dev/null && echo "TouchPad reactivated." && exit
+  synclient TouchpadOff=1 && echo "TouchPad deactivated."
 else
-#Disabling is on default TO DO ABILITATE TOGGLING !!!!
-xinput disable $(echo "*$(xinput list --name-only | grep -i touchpad)*" | sed s/^\*/\'/g | sed s/\*$/\'/g )
+if [[ "$enabled" == 1 ]]; then
+   echo "enabled before"
+   xinput disable "$TOUCH_NAME" ;
+   else
+   xinput enable "$TOUCH_NAME" ;
+fi
 fi
